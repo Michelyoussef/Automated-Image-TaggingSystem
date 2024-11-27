@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COCO Image Tagging</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        #imagePreview { max-width: 100%; margin-top: 20px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>COCO Image Tagging</h1>
+    <input type="file" id="imageInput" accept="image/*">
+    <div id="imageContainer"></div>
+    <div id="results"></div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const imageContainer = document.getElementById('imageContainer');
+        const results = document.getElementById('results');
+        const apiUrl = 'https://ftxzpbtx8j.execute-api.eu-north-1.amazonaws.com';
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.id = 'imagePreview';
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(img);
+
+                
+                axios.post(apiUrl, file, {
+                    headers: {
+                        'Content-Type': file.type
+                    }
+                })
+                .then(response => {
+                    results.innerHTML = '<h2>Tags:</h2>' + response.data.join(', ');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    results.innerHTML = 'An error occurred while processing the image.';
+                });
+            }
+
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>
